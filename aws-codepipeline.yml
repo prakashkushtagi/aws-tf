@@ -184,6 +184,8 @@ Resources:
                      "Environment" : "dev"
                   }
                 RoleArn: !GetAtt CFDeployerRole.Arn
+                OutputArtifacts: []
+                
       ArtifactStore:
         Type: S3
         Location: !Ref CodepipelineBucket
