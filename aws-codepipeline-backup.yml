@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description: Crea un pipeline para Infraestructura
+Description: Create Infraestructure Pipeline
 
 ## ***************************** Parameters section ************************************
 Parameters:
@@ -58,13 +58,13 @@ Resources:
                 commands:
                   - echo "Validating config files"
                   - |
-                      for conf in config/*.json; do
+                      for conf in eks/config/*.json; do
                           echo "Validating CFN parameters config file $conf"
                           jsonlint -q $conf
                       done
                   - echo "Validating Cloudformation template"
                   - |
-                      for cfn_template in *.yml; do
+                      for cfn_template in eks/*.yml; do
                             echo "----------------------"
                             echo "Validating CloudFormation template file $cfn_template"
                             aws cloudformation validate-template --template-body file://$cfn_template
@@ -176,14 +176,52 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub "${AWS::StackName}-eks"
-                TemplatePath: "Repo::eks-vc-cluster.yml"
-                TemplateConfiguration: "Repo::config/eks.config.dev.json"
+                TemplatePath: "Repo::eks/eks-vc-cluster.yml"
+                TemplateConfiguration: "Repo::eks/config/eks.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
                      "Environment" : "dev"
                   }
                 RoleArn: !GetAtt CFDeployerRole.Arn
+
+            ## Deploy Worker Nodes
+            - RunOrder: 2
+              Name: EKS-WorkerNodes
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: '1'
+              InputArtifacts:
+                - Name: Repo
+              Configuration:
+                ActionMode: CREATE_UPDATE
+                Capabilities: CAPABILITY_IAM
+                StackName: !Sub "${AWS::StackName}-eks-workers"
+                TemplatePath: "Repo::eks/amazon-eks-nodegroup.yml"
+                TemplateConfiguration: "Repo::eks/config/eks.workernodes.config.dev.json"
+                ParameterOverrides: !Sub |
+                  {
+                     "ClusterName" : "${ClusterName}",
+                     "Environment" : "dev"
+                  }
+                RoleArn: !GetAtt CFDeployerRole.Arn
+              OutputArtifacts: []
+
+            - RunOrder: 3
+              Name: "WorkerJoin"
+              InputArtifacts:
+                - Name: Repo
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Sub codebuild-worker-join
+              OutputArtifacts: []
+
       ArtifactStore:
         Type: S3
         Location: !Ref CodepipelineBucket
