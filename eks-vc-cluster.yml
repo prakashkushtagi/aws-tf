@@ -26,8 +26,8 @@ Resources:
     Properties:
       Name: !Ref ClusterName
       Version: "1.10"
-#      RoleArn: !ImportValue eks-vc-role
-      RoleArn: arn:aws:iam::485164690107:role/eks-vc-role
+      RoleArn: !ImportValue eks-vc-role
+#      RoleArn: arn:aws:iam::485164690107:role/eks-vc-role
       ResourcesVpcConfig:
         SecurityGroupIds: !Ref SecurityGroupIDs
         SubnetIds: !Ref SubnetIDs
