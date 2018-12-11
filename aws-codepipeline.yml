@@ -60,7 +60,7 @@ Resources:
                       done
                   - echo "Validating Cloudformation template"
                   - |
-                      for cfn_template in aws-tf/*.yml; do
+                      for cfn_template in aws-tf/*.yml ; do
                             echo "----------------------"
                             echo "Validating CloudFormation template file $cfn_template"
                             aws cloudformation validate-template --template-body file://$cfn_template
