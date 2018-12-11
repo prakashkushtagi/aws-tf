@@ -54,13 +54,13 @@ Resources:
                 commands:
                   - echo "Validating config files"
                   - |
-                      for conf in eks/config/*.json; do
+                      for conf in aws-tf/config/*.json; do
                           echo "Validating CFN parameters config file $conf"
                           jsonlint -q $conf
                       done
                   - echo "Validating Cloudformation template"
                   - |
-                      for cfn_template in eks/*.yml; do
+                      for cfn_template in aws-tf/*.yml; do
                             echo "----------------------"
                             echo "Validating CloudFormation template file $cfn_template"
                             aws cloudformation validate-template --template-body file://$cfn_template
@@ -181,26 +181,6 @@ Resources:
                 RoleArn: !GetAtt CFDeployerRole.Arn
 
                 ## Deploy Worker Nodes
-            - RunOrder: 2
-              Name: EKS-WorkerNodes
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              InputArtifacts:
-                - Name: Repo
-              Configuration:
-                ActionMode: CREATE_UPDATE
-                Capabilities: CAPABILITY_IAM
-                StackName: !Sub "${AWS::StackName}-eks-workers"
-                TemplatePath: "Repo::eks/amazon-eks-nodegroup.yml"
-                TemplateConfiguration: "Repo::eks/config/eks.workernodes.config.dev.json"
-                ParameterOverrides: !Sub |
-                  {
-                     "Environment" : "dev"
-                  }
-                RoleArn: !GetAtt CFDeployerRole.Arn
               OutputArtifacts: []
 
       ArtifactStore:
