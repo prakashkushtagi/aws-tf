@@ -54,13 +54,13 @@ Resources:
                 commands:
                   - echo "Validating config files"
                   - |
-                      for conf in aws-tf/config/*.json; do
+                      for conf in config/*.json; do
                           echo "Validating CFN parameters config file $conf"
                           jsonlint -q $conf
                       done
                   - echo "Validating Cloudformation template"
                   - |
-                      for cfn_template in aws-tf/*.yml ; do
+                      for cfn_template in *.yml; do
                             echo "----------------------"
                             echo "Validating CloudFormation template file $cfn_template"
                             aws cloudformation validate-template --template-body file://$cfn_template
