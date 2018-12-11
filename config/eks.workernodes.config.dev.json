@@ -6,7 +6,7 @@
         "NodeAutoScalingGroupMinSize": "1",
         "NodeAutoScalingGroupMaxSize": "3",
         "NodeVolumeSize": "20",
-        "ClusterName": "vini-eks-cluster-bc",
+        "ClusterName": "vini-eks-cluster",
         "NodeGroupName": "my-nodegroup-cluster",
         "ClusterControlPlaneSecurityGroup": "sg-0af327cbfb52773c1",
         "VpcId": "vpc-05e9cc266ae11b873",
