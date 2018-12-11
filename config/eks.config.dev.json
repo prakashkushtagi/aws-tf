@@ -1,5 +1,6 @@
 {
     "Parameters": {
+        "ClusterName": "eks-cluster-vinicius",
         "SecurityGroupIDs": "sg-0af327cbfb52773c1	",
         "SubnetIDs" : "subnet-046a7b945c72009f9,subnet-08eac3141a54bc5ad,subnet-0315a3dabd50e566b"
     },
