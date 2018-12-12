@@ -176,8 +176,8 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub "${AWS::StackName}-cluster"
-                TemplatePath: "Repo::eks/eks-vc-cluster.yml"
-                TemplateConfiguration: "Repo::eks/config/eks.config.dev.json"
+                TemplatePath: "Repo::eks-vc-cluster.yml"
+                TemplateConfiguration: "Repo::config/eks.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
@@ -199,8 +199,8 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub "${AWS::StackName}-workers"
-                TemplatePath: "Repo::eks/amazon-eks-nodegroup.yml"
-                TemplateConfiguration: "Repo::eks/config/eks.workernodes.config.dev.json"
+                TemplatePath: "Repo::amazon-eks-nodegroup.yml"
+                TemplateConfiguration: "Repo::config/eks.workernodes.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
