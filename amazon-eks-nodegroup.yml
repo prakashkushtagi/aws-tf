@@ -315,27 +315,43 @@ Resources:
         EnvironmentVariables:
           - Name: EKS_CLUSTER_NAME
             Value: !Ref ClusterName
+          - Name: EKS_WORKER_ROLE_ARN
+            Value: !GetAtt NodeInstanceRole.Arn
           - Name: EKS_KUBECTL_ROLE_ARN
-            Value: !Sub arn:aws:iam::${AWS::AccountId}:role/${KubectlRoleName}
+            Value: 
+              Fn::ImportValue: 
+                !Sub "${ClusterName}-master-role"
       Name: !Sub "codebuild-worker-join"
       ServiceRole: !GetAtt CodeBuildServiceRole.Arn
       Source:
         BuildSpec: !Sub |
-            version: 0.1
+            version: 0.2
             phases:
               install:
                 commands:
-                  - mkdir bin
-                  - curl -sS -o bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
-                  - curl -sS -o bin/kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/kubectl
-                  - chmod +x ./bin/kubectl ./bin/aws-iam-authenticator
-                  - export PATH=$PWD/bin:$PATH
+                  - pwd
+                  - curl -sS -o /usr/local/bin/kubectl https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/kubectl
+                  - curl -o /usr/local/bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.10.3/2018-07-26/bin/linux/amd64/aws-iam-authenticator
+                  - ls -lh /usr/local/bin/
                   - apt-get update && apt-get -y install jq golang python3-pip python3-dev && pip3 install --upgrade awscli
-              pre_build:
+                  - export KUBECONFIG=$HOME/.kube/config
+                  - chmod +x /usr/local/bin/kubectl /usr/local/bin/aws-iam-authenticator
+              build:
                 commands:
-                  - echo "Creating ConfigMap"
+                  - echo $EKS_KUBECTL_ROLE_ARN
+                  - CREDS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
+                  - export AWS_ACCESS_KEY_ID="$(echo $CREDS | jq -r '.Credentials.AccessKeyId')"
+                  - export AWS_SECRET_ACCESS_KEY="$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')"
+                  - export AWS_SESSION_TOKEN="$(echo $CREDS | jq -r '.Credentials.SessionToken')"
+                  - export AWS_EXPIRATION=$(echo $CREDS | jq -r '.Credentials.Expiration')
+                  - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+
+              post_build:
+                  commands:
+                  - kubectl get svc
+                  - kubectl get nodes
                   - |
-                      cat > /tmp/aws-auth-patch.yml << EOL
+                      cat > /tmp/awsauth-cm.yml <<EOL
                         apiVersion: v1
                         kind: ConfigMap
                         metadata:
@@ -343,49 +359,17 @@ Resources:
                           namespace: kube-system
                         data:
                           mapRoles: |
-                            - rolearn: $EKS_KUBECTL_ROLE_ARN
+                            - rolearn: $EKS_WORKER_ROLE_ARN
                               username: system:node:{{EC2PrivateDNSName}}
                               groups:
                                 - system:bootstrappers
                                 - system:nodes
                       EOL
-                  - cat /tmp/aws-auth-patch.yml
-                build:
-                  commands:
-                    - CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
-                post_build:
-                  commands:
-                    - CREDENTIALS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
-                    - export AWS_ACCESS_KEY_ID="$(echo $CREDENTIALS | jq -r '.Credentials.AccessKeyId')"
-                    - export AWS_SECRET_ACCESS_KEY="$(echo $CREDENTIALS | jq -r '.Credentials.SecretAccessKey')"
-                    - export AWS_SESSION_TOKEN="$(echo $CREDENTIALS | jq -r '.Credentials.SessionToken')"
-                    - export AWS_EXPIRATION=$(echo $CREDENTIALS | jq -r '.Credentials.Expiration')
-                    - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-                    - cat /tmp/aws-auth-patch.yml
-                    - kubectl patch configmap/aws-auth -n kube-system --patch "$(cat /tmp/aws-auth-patch.yml)"
-        Type: CODEPIPELINE
+                  - cat /tmp/awsauth-cm.yml
+                  - kubectl apply -f /tmp/awsauth-cm.yml
+                  - kubectl get nodes
 
-  KubectlRoleName:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-        - Effect: Allow
-          Principal:
-            AWS:
-            - !Sub arn:aws:iam::${AWS::AccountId}:root
-          Action:
-          - sts:AssumeRole
-      Policies:
-        - PolicyName: codebuild-kubectl-policy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - eks:Describe*
-                Resource: "*"
+        Type: CODEPIPELINE
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -403,20 +387,23 @@ Resources:
           PolicyDocument:
             Version: 2012-10-17
             Statement:
-              - Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/${KubectlRoleName}
-                Effect: Allow
+              - Effect: Allow
                 Action:
-                  - sts:AssumeRole
+                  - sts:*
+                Resource: "*"
+
               - Resource: '*'
                 Effect: Allow
                 Action:
                   - eks:Describe*
+
               - Resource: '*'
                 Effect: Allow
                 Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+
               - Resource: '*'
                 Effect: Allow
                 Action:
@@ -428,6 +415,7 @@ Resources:
                   - ec2:DescribeSecurityGroups
                   - ec2:DescribeVpcs
                   - ec2:CreateNetworkInterfacePermission
+
               - Resource: "*"
                 Effect: Allow
                 Action:

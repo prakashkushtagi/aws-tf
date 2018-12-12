@@ -42,7 +42,7 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/nodejs:7.0.0
         Type: LINUX_CONTAINER
-      Name: "codebuild-validate"
+      Name: !Sub "${AWS::StackName}-codebuild-validate"
       ServiceRole: !Ref CodeBuildRole
       Source:
         BuildSpec: !Sub |
@@ -58,13 +58,13 @@ Resources:
                 commands:
                   - echo "Validating config files"
                   - |
-                      for conf in config/*.json; do
+                      for conf in eks/config/*.json; do
                           echo "Validating CFN parameters config file $conf"
                           jsonlint -q $conf
                       done
                   - echo "Validating Cloudformation template"
                   - |
-                      for cfn_template in *.yml; do
+                      for cfn_template in eks/*.yml; do
                             echo "----------------------"
                             echo "Validating CloudFormation template file $cfn_template"
                             aws cloudformation validate-template --template-body file://$cfn_template
@@ -144,21 +144,21 @@ Resources:
                 - Name: Repo
 
         ## Stage de prueba de los templates
-        -
-          Name: Test
-          Actions:
-            - RunOrder: 1
-              Name: "Test_files"
-              InputArtifacts:
-                - Name: Repo
-              ActionTypeId:
-                Category: Test
-                Owner: AWS
-                Version: 1
-                Provider: CodeBuild
-              Configuration:
-                ProjectName: "codebuild-validate"
-              OutputArtifacts: []
+        # -
+        #   Name: Test
+        #   Actions:
+        #     - RunOrder: 1
+        #       Name: "Test_files"
+        #       InputArtifacts:
+        #         - Name: Repo
+        #       ActionTypeId:
+        #         Category: Test
+        #         Owner: AWS
+        #         Version: 1
+        #         Provider: CodeBuild
+        #       Configuration:
+        #         ProjectName: !Sub "${AWS::StackName}-codebuild-validate"
+        #       OutputArtifacts: []
 
         - Name: Dev
           Actions:
@@ -175,9 +175,9 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
-                StackName: !Sub "${AWS::StackName}-eks-cluster"
-                TemplatePath: "Repo::eks-vc-cluster.yml"
-                TemplateConfiguration: "Repo::config/eks.config.dev.json"
+                StackName: !Sub "${AWS::StackName}-cluster"
+                TemplatePath: "Repo::eks/eks-vc-cluster.yml"
+                TemplateConfiguration: "Repo::eks/config/eks.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
@@ -198,9 +198,9 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
-                StackName: !Sub "${AWS::StackName}-eks-workers"
-                TemplatePath: "Repo::amazon-eks-nodegroup.yml"
-                TemplateConfiguration: "Repo::config/eks.workernodes.config.dev.json"
+                StackName: !Sub "${AWS::StackName}-workers"
+                TemplatePath: "Repo::eks/amazon-eks-nodegroup.yml"
+                TemplateConfiguration: "Repo::eks/config/eks.workernodes.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
@@ -296,7 +296,6 @@ Resources:
       Roles:
         - !Ref PipeLineRole
 
-
   CFDeployerRole:
     Type: AWS::IAM::Role
     Properties:
@@ -308,6 +307,7 @@ Resources:
             Principal:
               Service:
                 - cloudformation.amazonaws.com
+                - codebuild.amazonaws.com
             Action:
               - sts:AssumeRole
       Path: /
@@ -331,7 +331,7 @@ Resources:
               - iam:PutRolePolicy
               - iam:PassRole
               - iam:AttachRolePolicy
-              - iam:DetachRolePolicy
+              - iam:DetachRolePolicy 
               - iam:DeleteRolePolicy
               - iam:CreateInstanceProfile
               - iam:DeleteInstanceProfile
@@ -364,7 +364,6 @@ Resources:
               - autoscaling:*
             Resource:
               - "*"
-
           -
             Effect: Allow
             Action:
@@ -375,3 +374,9 @@ Resources:
       Roles:
         -
           !Ref CFDeployerRole
+
+Outputs:
+    CFDeployerRole:
+      Value: !GetAtt CFDeployerRole.Arn
+      Export:
+        Name: !Sub "${ClusterName}-master-role"
