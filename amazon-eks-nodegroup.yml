@@ -334,7 +334,7 @@ Resources:
               pre_build:
                 commands:
                   - echo "Creating ConfigMap"
-                  - | 
+                  - |
                       cat > /tmp/aws-auth-patch.yml << EOL
                         apiVersion: v1
                         kind: ConfigMap
