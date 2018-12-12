@@ -144,21 +144,21 @@ Resources:
                 - Name: Repo
 
         ## Stage de prueba de los templates
-        # -
-        #   Name: Test
-        #   Actions:
-        #     - RunOrder: 1
-        #       Name: "Test_files"
-        #       InputArtifacts:
-        #         - Name: Repo
-        #       ActionTypeId:
-        #         Category: Test
-        #         Owner: AWS
-        #         Version: 1
-        #         Provider: CodeBuild
-        #       Configuration:
-        #         ProjectName: !Sub "${AWS::StackName}-codebuild-validate"
-        #       OutputArtifacts: []
+         -
+           Name: Test
+           Actions:
+             - RunOrder: 1
+               Name: "Test_files"
+               InputArtifacts:
+                 - Name: Repo
+               ActionTypeId:
+                 Category: Test
+                 Owner: AWS
+                 Version: 1
+                 Provider: CodeBuild
+               Configuration:
+                 ProjectName: !Sub "${AWS::StackName}-codebuild-validate"
+               OutputArtifacts: []
 
         - Name: Dev
           Actions:
@@ -176,8 +176,8 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub "${AWS::StackName}-cluster"
-                TemplatePath: "Repo::eks/eks-vc-cluster.yml"
-                TemplateConfiguration: "Repo::eks/config/eks.config.dev.json"
+                TemplatePath: "Repo::eks-vc-cluster.yml"
+                TemplateConfiguration: "Repo::config/eks.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
@@ -199,8 +199,8 @@ Resources:
                 ActionMode: CREATE_UPDATE
                 Capabilities: CAPABILITY_IAM
                 StackName: !Sub "${AWS::StackName}-workers"
-                TemplatePath: "Repo::eks/amazon-eks-nodegroup.yml"
-                TemplateConfiguration: "Repo::eks/config/eks.workernodes.config.dev.json"
+                TemplatePath: "Repo::amazon-eks-nodegroup.yml"
+                TemplateConfiguration: "Repo::config/eks.workernodes.config.dev.json"
                 ParameterOverrides: !Sub |
                   {
                      "ClusterName" : "${ClusterName}",
