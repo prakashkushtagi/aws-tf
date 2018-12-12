@@ -145,20 +145,20 @@ Resources:
 
         ## Stage de prueba de los templates
         -
-          Name: Test
-          Actions:
-           - RunOrder: 1
-             Name: "Test_files"
-             InputArtifacts:
-               - Name: Repo
-             ActionTypeId:
-               Category: Test
-               Owner: AWS
-               Version: 1
-               Provider: CodeBuild
-             Configuration:
-               ProjectName: !Sub "${AWS::StackName}-codebuild-validate"
-             OutputArtifacts: []
+#          Name: Test
+#          Actions:
+#           - RunOrder: 1
+#             Name: "Test_files"
+#             InputArtifacts:
+#               - Name: Repo
+#             ActionTypeId:
+#               Category: Test
+#               Owner: AWS
+#               Version: 1
+#               Provider: CodeBuild
+#             Configuration:
+#               ProjectName: !Sub "${AWS::StackName}-codebuild-validate"
+#             OutputArtifacts: []
 
         - Name: Dev
           Actions:
@@ -186,41 +186,41 @@ Resources:
                 RoleArn: !GetAtt CFDeployerRole.Arn
 
             ## Deploy Worker Nodes
-            - RunOrder: 2
-              Name: EKS-WorkerNodes
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: '1'
-              InputArtifacts:
-                - Name: Repo
-              Configuration:
-                ActionMode: CREATE_UPDATE
-                Capabilities: CAPABILITY_IAM
-                StackName: !Sub "${AWS::StackName}-workers"
-                TemplatePath: "Repo::amazon-eks-nodegroup.yml"
-                TemplateConfiguration: "Repo::config/eks.workernodes.config.dev.json"
-                ParameterOverrides: !Sub |
-                  {
-                     "ClusterName" : "${ClusterName}",
-                     "Environment" : "dev"
-                  }
-                RoleArn: !GetAtt CFDeployerRole.Arn
-              OutputArtifacts: []
+#            - RunOrder: 2
+#              Name: EKS-WorkerNodes
+#              ActionTypeId:
+#                Category: Deploy
+#                Owner: AWS
+#                Provider: CloudFormation
+#                Version: '1'
+#              InputArtifacts:
+#                - Name: Repo
+#              Configuration:
+#                ActionMode: CREATE_UPDATE
+#                Capabilities: CAPABILITY_IAM
+#                StackName: !Sub "${AWS::StackName}-workers"
+#                TemplatePath: "Repo::amazon-eks-nodegroup.yml"
+#                TemplateConfiguration: "Repo::config/eks.workernodes.config.dev.json"
+#                ParameterOverrides: !Sub |
+#                  {
+#                     "ClusterName" : "${ClusterName}",
+#                     "Environment" : "dev"
+#                  }
+#                RoleArn: !GetAtt CFDeployerRole.Arn
+#              OutputArtifacts: []
 
-            - RunOrder: 3
-              Name: "WorkerJoin"
-              InputArtifacts:
-                - Name: Repo
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Version: 1
-                Provider: CodeBuild
-              Configuration:
-                ProjectName: !Sub codebuild-worker-join
-              OutputArtifacts: []
+#            - RunOrder: 3
+#              Name: "WorkerJoin"
+#              InputArtifacts:
+#                - Name: Repo
+#              ActionTypeId:
+#                Category: Build
+#                Owner: AWS
+#                Version: 1
+#                Provider: CodeBuild
+#              Configuration:
+#                ProjectName: !Sub codebuild-worker-join
+#              OutputArtifacts: []
 
       ArtifactStore:
         Type: S3
