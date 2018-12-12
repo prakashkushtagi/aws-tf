@@ -305,7 +305,10 @@ Resources:
           -
             Effect: Allow
             Principal:
-              AWS: "*"
+              Service:
+                - cloudformation.amazonaws.com
+                - codebuild.amazonaws.com
+              AWS: !Sub "arn:aws:iam::{AWS::AccountId}:root"
             Action:
               - sts:AssumeRole
       Path: /
