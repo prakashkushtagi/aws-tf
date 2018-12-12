@@ -337,11 +337,6 @@ Resources:
                   - export KUBECONFIG=$HOME/.kube/config
                   - chmod +x /usr/local/bin/kubectl /usr/local/bin/aws-iam-authenticator
               build:
-                commands:
-                  - echo $EKS_KUBECTL_ROLE_ARN
-                  - echo "hola mundo"
-                  - kubectl delete configmap aws-auth -n kube-system
-              post_build:
                   commands:
                   - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
                   - echo $EKS_KUBECTL_ROLE_ARN
@@ -350,8 +345,6 @@ Resources:
                   - export AWS_SECRET_ACCESS_KEY="$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')"
                   - export AWS_SESSION_TOKEN="$(echo $CREDS | jq -r '.Credentials.SessionToken')"
                   - export AWS_EXPIRATION=$(echo $CREDS | jq -r '.Credentials.Expiration')
-                  - kubectl get svc
-                  - kubectl get nodes
                   - |
                       cat > /tmp/awsauth-cm.yml <<EOL
                         apiVersion: v1
@@ -368,7 +361,11 @@ Resources:
                                 - system:nodes
                       EOL
                   - cat /tmp/awsauth-cm.yml
+                  - kubectl delete configmap aws-auth -n kube-system
+                  - kubectl get nodes
+                  - echo TRYAGAIN
                   - kubectl apply -f /tmp/awsauth-cm.yml
+                  - kubectl get svc
                   - kubectl get nodes
 
         Type: CODEPIPELINE
