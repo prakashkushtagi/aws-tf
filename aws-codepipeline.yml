@@ -308,6 +308,7 @@ Resources:
               Service:
                 - cloudformation.amazonaws.com
                 - codebuild.amazonaws.com
+                - codepipeline.amazonaws.com
             Action:
               - sts:AssumeRole
       Path: /
