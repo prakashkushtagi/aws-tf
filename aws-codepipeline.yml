@@ -305,9 +305,7 @@ Resources:
           -
             Effect: Allow
             Principal:
-              Service:
-                - cloudformation.amazonaws.com
-                - codebuild.amazonaws.com
+              AWS: "*"
             Action:
               - sts:AssumeRole
       Path: /
