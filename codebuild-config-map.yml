@@ -54,11 +54,11 @@ Resources:
                     - CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
                 post_build:
                   commands:
-                    - CREDENTIALS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
-                    - export AWS_ACCESS_KEY_ID="$(echo $CREDENTIALS | jq -r '.Credentials.AccessKeyId')"
-                    - export AWS_SECRET_ACCESS_KEY="$(echo $CREDENTIALS | jq -r '.Credentials.SecretAccessKey')"
-                    - export AWS_SESSION_TOKEN="$(echo $CREDENTIALS | jq -r '.Credentials.SessionToken')"
-                    - export AWS_EXPIRATION=$(echo $CREDENTIALS | jq -r '.Credentials.Expiration')
+                    - CRED=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
+                    - export AWS_ACCESS_KEY_ID="$(echo $CRED | jq -r '.Credentials.AccessKeyId')"
+                    - export AWS_SECRET_ACCESS_KEY="$(echo $CRED | jq -r '.Credentials.SecretAccessKey')"
+                    - export AWS_SESSION_TOKEN="$(echo $CRED | jq -r '.Credentials.SessionToken')"
+                    - export AWS_EXPIRATION=$(echo $CRED | jq -r '.Credentials.Expiration')
                     - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
                     - kubectl get -n kube-system configmap/aws-auth -o yaml | awk "/mapRoles: \|/{print;print \"$ROLE\";next}1" > /tmp/aws-auth-patch.yml
                     - cat /tmp/aws-auth-patch.yml
