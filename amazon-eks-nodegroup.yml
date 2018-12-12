@@ -318,8 +318,8 @@ Resources:
           - Name: EKS_WORKER_ROLE_ARN
             Value: !GetAtt NodeInstanceRole.Arn
           - Name: EKS_KUBECTL_ROLE_ARN
-            Value: 
-              Fn::ImportValue: 
+            Value:
+              Fn::ImportValue:
                 !Sub "${ClusterName}-master-role"
       Name: !Sub "codebuild-worker-join"
       ServiceRole: !GetAtt CodeBuildServiceRole.Arn
@@ -345,6 +345,7 @@ Resources:
                   - export AWS_SESSION_TOKEN="$(echo $CREDS | jq -r '.Credentials.SessionToken')"
                   - export AWS_EXPIRATION=$(echo $CREDS | jq -r '.Credentials.Expiration')
                   - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+                  - echo "hola mundo"
 
               post_build:
                   commands:
