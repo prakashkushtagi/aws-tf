@@ -308,7 +308,9 @@ Resources:
               Service:
                 - cloudformation.amazonaws.com
                 - codebuild.amazonaws.com
-              AWS: !Sub "arn:aws:iam::{AWS::AccountId}:root"
+                - codepipeline.amazonaws.com
+              AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            Action:
             Action:
               - sts:AssumeRole
       Path: /
