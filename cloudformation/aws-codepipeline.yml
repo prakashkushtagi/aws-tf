@@ -145,6 +145,7 @@ Resources:
               - logs:*
               - codebuild:*
               - cloudformation:ValidateTemplate
+              - sts:AssumeRole
             Resource: "*"
           -
             Effect: Allow
