@@ -92,20 +92,20 @@ Resources:
         BuildSpec: !Sub |
             version: 0.2
             phases:
-            install:
-              commands:
-                - pwd
-                - ls -lh /usr/local/bin/
-            build:
+              install:
                 commands:
-                - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-                - echo $EKS_KUBECTL_ROLE_ARN
-                - CREDS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
-                - export AWS_ACCESS_KEY_ID="$(echo $CREDS | jq -r '.Credentials.AccessKeyId')"
-                - export AWS_SECRET_ACCESS_KEY="$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')"
-                - export AWS_SESSION_TOKEN="$(echo $CREDS | jq -r '.Credentials.SessionToken')"
-                - export AWS_EXPIRATION=$(echo $CREDS | jq -r '.Credentials.Expiration')
-                - kubectl apply -f k8s/kong/deployment.yaml
+                  - pwd
+                  - ls -lh /usr/local/bin/
+              build:
+                  commands:
+                  - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
+                  - echo $EKS_KUBECTL_ROLE_ARN
+                  - CREDS=$(aws sts assume-role --role-arn $EKS_KUBECTL_ROLE_ARN --role-session-name codebuild-kubectl --duration-seconds 900)
+                  - export AWS_ACCESS_KEY_ID="$(echo $CREDS | jq -r '.Credentials.AccessKeyId')"
+                  - export AWS_SECRET_ACCESS_KEY="$(echo $CREDS | jq -r '.Credentials.SecretAccessKey')"
+                  - export AWS_SESSION_TOKEN="$(echo $CREDS | jq -r '.Credentials.SessionToken')"
+                  - export AWS_EXPIRATION=$(echo $CREDS | jq -r '.Credentials.Expiration')
+                  - kubectl apply -f k8s/kong/deployment.yaml
         Type: CODEPIPELINE
 
 #############################################################################
