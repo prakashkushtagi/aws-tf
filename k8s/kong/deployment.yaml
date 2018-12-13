@@ -450,11 +450,11 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: <KONG_PG_PASSWORD>
+          value: elfos123
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
-          value: <KONG_DATABASE_URL>
+          value: kong.cicfkivia3zm.us-east-1.rds.amazonaws.com
         - name: KONG_ADMIN_ACCESS_LOG
           value: /dev/stdout
         - name: KONG_ADMIN_ERROR_LOG
@@ -570,11 +570,11 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: <KONG_PG_PASSWORD>
+          value: elfos123
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
-          value: <DATABASE_HOST_URL>
+          value: kong.cicfkivia3zm.us-east-1.rds.amazonaws.com
         - name: KONG_PROXY_ACCESS_LOG
           value: "/dev/stdout"
         - name: KONG_PROXY_ERROR_LOG
@@ -607,11 +607,11 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: <KONG_PG_PASSWORD>
+          value: elfos123
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
-          value: <DATABASE_HOST_URL>
+          value: kong.cicfkivia3zm.us-east-1.rds.amazonaws.com
         - name: KONG_PG_PORT
           value: "5432"
         command: [ "/bin/sh", "-c", "kong migrations up" ]
