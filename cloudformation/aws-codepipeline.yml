@@ -72,7 +72,7 @@ Resources:
         Type: CODEPIPELINE
 
 ################ Kong Codebuild Deploy Project
-  ValidateConfig:
+  KongBuildConfig:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
