@@ -152,7 +152,7 @@ Resources:
             Effect: Allow
             Action:
               - eks:Describe*
-              
+
           -
             Effect: Allow
             Action:

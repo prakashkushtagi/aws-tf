@@ -5,8 +5,11 @@ metadata:
   namespace: kube-system
 data:
   mapRoles: |
-    - rolearn: arn:aws:iam::485164690107:role/eks-pipeline-workers-NodeInstanceRole-1AO9YVS8ADKND
+    - rolearn: arn:aws:iam::485164690107:role/eks-pipeline-CFDeployerRole-1WIQ7M2FVLE8Y
       username: system:node:{{EC2PrivateDNSName}}
       groups:
         - system:bootstrappers
         - system:nodes
+  mapUsers: |
+    - userarn: arn:aws:iam::485164690107:user/leonel.morais
+      username: leonel.morais
