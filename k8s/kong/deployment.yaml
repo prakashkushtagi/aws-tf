@@ -450,7 +450,10 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: elfos123
+          valueFrom:
+            secretKeyRef:
+              name: kong-pg-password
+              key: kong_postgress_password
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
@@ -570,7 +573,10 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: elfos123
+          valueFrom:
+            secretKeyRef:
+              name: kong-pg-password
+              key: kong_postgress_password
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
@@ -607,7 +613,10 @@ spec:
         - name: KONG_PG_USER
           value: kong
         - name: KONG_PG_PASSWORD
-          value: elfos123
+          valueFrom:
+            secretKeyRef:
+              name: kong-pg-password
+              key: kong_postgress_password
         - name: KONG_DATABASE
           value: postgres
         - name: KONG_PG_HOST
