@@ -270,7 +270,7 @@ Resources:
                 Version: 1
                 Provider: CodeBuild
               Configuration:
-                ProjectName: !Sub codebuild-kong-deploy
+                ProjectName: !Sub "${AWS::StackName}-codebuild-kong-deploy"
               OutputArtifacts: []
 
       ArtifactStore:
