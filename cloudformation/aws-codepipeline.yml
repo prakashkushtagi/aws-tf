@@ -90,12 +90,13 @@ Resources:
       ServiceRole: !Ref CodeBuildRole
       Source:
         BuildSpec: !Sub |
-            version: 0.1
+            version: 0.2
             phases:
             install:
               commands:
                 - pwd
                 - ls -lh /usr/local/bin/
+            build:
                 commands:
                 - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
                 - echo $EKS_KUBECTL_ROLE_ARN
