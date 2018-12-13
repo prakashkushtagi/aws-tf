@@ -85,7 +85,7 @@ Resources:
         - Name: EKS_CLUSTER_NAME
           Value: !Ref ClusterName
         - Name: EKS_KUBECTL_ROLE_ARN
-          Value: !GetAtt CFDeployerRole.Arn
+          Value: !Ref CFDeployerRole
       Name: !Sub "${AWS::StackName}-codebuild-kong-deploy"
       ServiceRole: !Ref CodeBuildRole
       Source:
