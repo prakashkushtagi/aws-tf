@@ -5,8 +5,8 @@ metadata:
   labels:
     app: grafana
 spec:
-  ports:
   type: LoadBalancer
+  ports:
   - port: 80
     protocol: TCP
     targetPort: web
