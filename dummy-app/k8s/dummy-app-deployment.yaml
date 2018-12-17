@@ -44,3 +44,18 @@ spec:
             value: us-east-1
           ports:
             - containerPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: dummy-app-ingress
+  namespace: default
+spec:
+  rules:
+  - host: dummy-app.bancolombia.co
+    http:
+      paths:
+      - backend:
+          serviceName: dummy-app
+          servicePort: 80
+        path: /
